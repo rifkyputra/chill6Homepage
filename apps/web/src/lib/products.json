@@ -1,0 +1,302 @@
+[
+  {
+    "icon": "Gamepad2",
+    "title": "Gaming Zone",
+    "description": "Gaming seru dengan konsol dan game terbaik",
+    "featured": true,
+    "services": [
+      {
+        "id": "ps4-rental",
+        "name": "Rental Konsol PS4",
+        "price": "Rp 25.000/jam",
+        "priceNum": 25000,
+        "description": "Game terbaru, kursi nyaman, layar jernih",
+        "features": [
+          "Controller premium",
+          "Game terbaru",
+          "Layar HD",
+          "Tempat duduk nyaman"
+        ],
+        "stockStatus": "available"
+      },
+      {
+        "id": "roblox",
+        "name": "Main Roblox",
+        "price": "Rp 15.000/jam",
+        "priceNum": 15000,
+        "description": "Gaming Roblox aman untuk anak-anak dan remaja",
+        "features": [
+          "Lingkungan aman",
+          "Game populer",
+          "Sesi grup",
+          "Monitoring orang tua"
+        ],
+        "stockStatus": "available"
+      },
+      {
+        "id": "robux-topup",
+        "name": "Top-up Robux",
+        "price": "Mulai Rp 20.000",
+        "priceNum": 20000,
+        "description": "Layanan top-up Robux instan",
+        "features": [
+          "Pengiriman instan",
+          "Transaksi aman",
+          "Harga terbaik",
+          "Support 24/7"
+        ],
+        "stockStatus": "sold-out"
+      }
+    ]
+  },
+  {
+    "icon": "Crown",
+    "title": "Berlangganan Premium",
+    "description": "Akses ke aplikasi streaming dan produktivitas premium",
+    "featured": true,
+    "services": [
+      {
+        "id": "netflix-premium",
+        "name": "Netflix Premium",
+        "price": "Rp 55.000/bulan",
+        "priceNum": 55000,
+        "description": "Streaming 4K, banyak profil, semua konten",
+        "features": [
+          "4K Ultra HD",
+          "Multi layar",
+          "Semua region",
+          "Download offline"
+        ],
+        "stockStatus": "available"
+      },
+      {
+        "id": "amazon-prime",
+        "name": "Amazon Prime Video",
+        "price": "Rp 45.000/bulan",
+        "priceNum": 45000,
+        "description": "Film, serial, dan benefit Prime",
+        "features": [
+          "Konten eksklusif",
+          "Prime shipping",
+          "Prime Music",
+          "Tanpa iklan"
+        ],
+        "stockStatus": "coming-soon"
+      },
+      {
+        "id": "canva-pro",
+        "name": "Canva Pro",
+        "price": "Rp 150.000/tahun",
+        "priceNum": 150000,
+        "description": "Tool desain profesional dan template",
+        "features": [
+          "Template premium",
+          "Background remover",
+          "Brand kit",
+          "Kolaborasi tim"
+        ],
+        "stockStatus": "available"
+      },
+      {
+        "id": "spotify-premium",
+        "name": "Spotify Premium",
+        "price": "Rp 50.000/bulan",
+        "priceNum": 50000,
+        "description": "Streaming musik tanpa iklan",
+        "features": [
+          "Tanpa iklan",
+          "Download musik",
+          "Kualitas tinggi",
+          "Skip unlimited"
+        ],
+        "stockStatus": "available"
+      }
+    ]
+  },
+  {
+    "icon": "Camera",
+    "title": "Layanan Fotografi",
+    "description": "Fotografi profesional untuk semua acara",
+    "featured": false,
+    "services": [
+      {
+        "id": "studio-photo",
+        "name": "Sesi Foto Studio",
+        "price": "Mulai Rp 200.000",
+        "priceNum": 200000,
+        "description": "Fotografi studio profesional dengan properti dan pencahayaan",
+        "features": [
+          "Pencahayaan profesional",
+          "Berbagai backdrop",
+          "Properti lengkap",
+          "Copy digital"
+        ],
+        "stockStatus": "available"
+      },
+      {
+        "id": "photobox-rental",
+        "name": "Sewa PhotoBox",
+        "price": "Rp 100.000/jam",
+        "priceNum": 100000,
+        "description": "Pengalaman photo booth yang menyenangkan untuk acara",
+        "features": [
+          "Print instan",
+          "Copy digital",
+          "Properti seru",
+          "Frame custom"
+        ],
+        "stockStatus": "sold-out"
+      },
+      {
+        "id": "event-photography",
+        "name": "Fotografi Event",
+        "price": "Mulai Rp 500.000",
+        "priceNum": 500000,
+        "description": "Liputan untuk ulang tahun, wisuda, dan acara spesial",
+        "features": [
+          "Liputan lengkap",
+          "Foto teredited",
+          "Album digital",
+          "Opsi cetak"
+        ],
+        "stockStatus": "available"
+      }
+    ]
+  },
+  {
+    "icon": "Coffee",
+    "title": "Minuman & Snack",
+    "description": "Minuman berkualitas dan cemilan ringan",
+    "featured": false,
+    "services": [
+      {
+        "id": "matcha-premium",
+        "name": "Matcha Premium",
+        "price": "Rp 25.000 - 35.000",
+        "priceNum": 25000,
+        "description": "Minuman matcha Jepang asli",
+        "features": [
+          "Kualitas premium",
+          "Panas & dingin",
+          "Berbagai rasa",
+          "Pilihan sehat"
+        ],
+        "stockStatus": "available"
+      },
+      {
+        "id": "coffee-tea",
+        "name": "Kopi & Teh",
+        "price": "Rp 15.000 - 25.000",
+        "priceNum": 15000,
+        "description": "Kopi dan teh segar pilihan",
+        "features": [
+          "Biji segar",
+          "Berbagai asal",
+          "Panas & dingin",
+          "Gula custom"
+        ],
+        "stockStatus": "available"
+      },
+      {
+        "id": "snacks",
+        "name": "Cemilan Ringan",
+        "price": "Rp 10.000 - 20.000",
+        "priceNum": 10000,
+        "description": "Cemilan sehat dan makanan ringan",
+        "features": [
+          "Bahan segar",
+          "Pilihan sehat",
+          "Pelayanan cepat",
+          "Rasa lezat"
+        ],
+        "stockStatus": "coming-soon"
+      }
+    ]
+  },
+  {
+    "icon": "Smartphone",
+    "title": "Layanan Pembayaran Digital",
+    "description": "Solusi pembayaran digital dan top-up lengkap",
+    "featured": false,
+    "services": [
+      {
+        "id": "pulsa-data",
+        "name": "Pulsa & Paket Data",
+        "price": "Harga nominal + Rp 2.000",
+        "priceNum": 2000,
+        "description": "Semua operator didukung",
+        "features": [
+          "Semua operator",
+          "Pengiriman instan",
+          "Diskon grosir",
+          "Layanan 24/7"
+        ],
+        "stockStatus": "available"
+      },
+      {
+        "id": "ewallet-topup",
+        "name": "Top-up E-wallet",
+        "price": "Harga nominal + 1%",
+        "priceNum": 5000,
+        "description": "GoPay, OVO, Dana, dan lainnya",
+        "features": [
+          "Multi e-wallet",
+          "Proses instan",
+          "Transaksi aman",
+          "Fee rendah"
+        ],
+        "stockStatus": "available"
+      },
+      {
+        "id": "transport-card",
+        "name": "Kartu Transportasi",
+        "price": "Harga nominal + Rp 3.000",
+        "priceNum": 3000,
+        "description": "Top-up Flazz, e-Money, Tapcash",
+        "features": [
+          "Semua jenis kartu",
+          "Top-up cepat",
+          "Cek saldo",
+          "Ganti kartu"
+        ],
+        "stockStatus": "available"
+      }
+    ]
+  },
+  {
+    "icon": "Zap",
+    "title": "Layanan Utilitas",
+    "description": "Pembayaran utilitas cepat dan terpercaya",
+    "featured": false,
+    "services": [
+      {
+        "id": "pln-token",
+        "name": "Token Listrik (PLN)",
+        "price": "Harga nominal + Rp 2.500",
+        "priceNum": 2500,
+        "description": "Pembelian token listrik instan",
+        "features": [
+          "Pengiriman instan",
+          "Semua wilayah",
+          "Tracking riwayat",
+          "Struk tersedia"
+        ],
+        "stockStatus": "available"
+      },
+      {
+        "id": "bill-payment",
+        "name": "Bayar Tagihan",
+        "price": "Harga nominal + Rp 3.000",
+        "priceNum": 3000,
+        "description": "Air, internet, asuransi, dan tagihan lainnya",
+        "features": [
+          "Multi biller",
+          "Reminder jatuh tempo",
+          "Riwayat pembayaran",
+          "Bayar massal"
+        ],
+        "stockStatus": "available"
+      }
+    ]
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "name": "chill6homepage",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "homepage": "https://rifkyputra.github.io/chill6homepage",
+  "scripts": {
+    "check": "biome check --write .",
+    "dev": "bun run --filter '*' dev",
+    "build": "bun run --filter '*' build",
+    "check-types": "bun run --filter '*' check-types",
+    "dev:native": "bun run --filter native dev",
+    "dev:web": "bun run --filter web dev",
+    "dev:server": "bun run --filter server dev",
+    "predeploy": "bun run build",
+    "deploy": "bun run predeploy && gh-pages -d apps/web/dist -b gh-pages"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.0",
+    "gh-pages": "^6.3.0"
+  },
+  "packageManager": "bun@1.2.23"
+}

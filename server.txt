@@ -1,0 +1,279 @@
+# Auth Multi-Tenants API Documentation for LLMs
+
+SERVER_AUTH_URL API provides secure user authentication with email/password support using Better Auth.
+Base URL: SERVER_AUTH_URL | http://localhost:3000 (development) | https://your-domain.com (production)
+
+## Authentication System Overview
+
+The API uses session-based authentication with HTTP-only cookies. After successful sign-in/sign-up, 
+the server sets a `better-auth.session_token` cookie that is automatically included in subsequent requests.
+
+## API Routes
+
+### Health & Documentation Routes
+
+#### GET /
+**Purpose**: Health check endpoint
+**Authentication**: None required
+**Response**: Plain text "OK" (200 status)
+**Use Case**: Check if API server is running
+
+#### GET /api
+**Purpose**: Get API overview and documentation links
+**Authentication**: None required
+**Response**: JSON with API information, version, and available endpoints
+**Use Case**: Discover available API endpoints and documentation
+
+#### GET /api/auth/docs
+**Purpose**: Get authentication-specific documentation
+**Authentication**: None required
+**Response**: JSON with auth endpoints and descriptions
+**Use Case**: Learn about available authentication endpoints
+
+### Authentication Routes
+
+#### POST /api/auth/sign-up/email
+**Purpose**: Create new user account with email/password
+**Authentication**: None required (public endpoint)
+**Content-Type**: application/json
+
+**Request Body**:
+```json
+{
+  "name": "John Doe",                    // Required: User's full name
+  "email": "john.doe@example.com",       // Required: Valid, unique email
+  "password": "SecurePassword123!",      // Required: Minimum 8 characters
+  "image": "https://example.com/avatar.jpg" // Optional: Profile image URL
+}
+```
+
+**Success Response (200)**:
+```json
+{
+  "user": {
+    "id": "user_123abc",
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "emailVerified": false,
+    "image": null,
+    "createdAt": "2023-10-01T12:00:00Z",
+    "updatedAt": "2023-10-01T12:00:00Z"
+  },
+  "session": {
+    "id": "session_456def",
+    "userId": "user_123abc",
+    "expiresAt": "2023-10-08T12:00:00Z",
+    "token": "abc123xyz789",
+    "createdAt": "2023-10-01T12:00:00Z"
+  }
+}
+```
+
+**Error Responses**:
+- 400: Validation errors (invalid email, missing fields)
+- 409: Email already exists
+- 500: Server error
+
+**Headers Set**: `Set-Cookie: better-auth.session_token=...` (session cookie)
+
+#### POST /api/auth/sign-in/email
+**Purpose**: Authenticate user with email/password
+**Authentication**: None required (public endpoint)
+**Content-Type**: application/json
+
+**Request Body**:
+```json
+{
+  "email": "john.doe@example.com",    // Required: User's email
+  "password": "SecurePassword123!",   // Required: User's password
+  "rememberMe": false                 // Optional: Extend session duration
+}
+```
+
+**Success Response (200)**:
+```json
+{
+  "user": {
+    "id": "user_123abc",
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "emailVerified": false,
+    "image": null,
+    "createdAt": "2023-10-01T12:00:00Z",
+    "updatedAt": "2023-10-01T12:00:00Z"
+  },
+  "session": {
+    "id": "session_789ghi",
+    "userId": "user_123abc",
+    "expiresAt": "2023-10-08T12:00:00Z",
+    "token": "xyz789abc123",
+    "createdAt": "2023-10-01T12:00:00Z"
+  }
+}
+```
+
+**Error Responses**:
+- 400: Invalid input (malformed email, missing password)
+- 401: Invalid credentials (wrong email/password)
+- 429: Too many requests (rate limited)
+- 500: Server error
+
+**Headers Set**: `Set-Cookie: better-auth.session_token=...` (session cookie)
+
+#### GET /api/auth/session
+**Purpose**: Get current user session information
+**Authentication**: Required (session cookie)
+**Content-Type**: None (GET request)
+
+**Request**: No body required. Session cookie automatically sent by browser.
+
+**Success Response (200)**:
+```json
+{
+  "user": {
+    "id": "user_123abc",
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "emailVerified": false,
+    "image": null,
+    "createdAt": "2023-10-01T12:00:00Z",
+    "updatedAt": "2023-10-01T12:00:00Z"
+  },
+  "session": {
+    "id": "session_789ghi",
+    "userId": "user_123abc",
+    "expiresAt": "2023-10-08T12:00:00Z",
+    "token": "xyz789abc123",
+    "ipAddress": "192.168.1.1",
+    "userAgent": "Mozilla/5.0...",
+    "createdAt": "2023-10-01T12:00:00Z"
+  }
+}
+```
+
+**Error Responses**:
+- 401: No active session or invalid session
+- 500: Server error
+
+**Use Cases**: Check if user is logged in, get current user data, validate session
+
+#### POST /api/auth/sign-out
+**Purpose**: Sign out current user and invalidate session
+**Authentication**: Required (session cookie)
+**Content-Type**: None (no body required)
+
+**Request**: No body required. Session cookie automatically sent by browser.
+
+**Success Response (200)**:
+```json
+{
+  "success": true,
+  "message": "Successfully signed out"
+}
+```
+
+**Error Responses**:
+- 401: No active session to sign out
+- 500: Server error
+
+**Headers Set**: `Set-Cookie: better-auth.session_token=; ...Expires=Thu, 01 Jan 1970...` (clears cookie)
+
+## Frontend Implementation Guidelines
+
+### Cookie Management
+- Cookies are HTTP-only and automatically managed by the browser
+- No manual cookie handling required in frontend JavaScript
+- Include credentials in fetch requests: `credentials: 'include'`
+
+### Authentication Flow
+1. **Sign Up**: POST to `/api/auth/sign-up/email` → User created and automatically signed in
+2. **Sign In**: POST to `/api/auth/sign-in/email` → User authenticated, session created
+3. **Check Session**: GET `/api/auth/session` → Verify if user is still logged in
+4. **Sign Out**: POST `/api/auth/sign-out` → Invalidate session
+
+### Frontend Fetch Examples
+
+**Sign Up**:
+```javascript
+const response = await fetch('/api/auth/sign-up/email', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  credentials: 'include',
+  body: JSON.stringify({
+    name: 'John Doe',
+    email: 'john@example.com',
+    password: 'SecurePassword123!'
+  })
+});
+```
+
+**Sign In**:
+```javascript
+const response = await fetch('/api/auth/sign-in/email', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  credentials: 'include',
+  body: JSON.stringify({
+    email: 'john@example.com',
+    password: 'SecurePassword123!'
+  })
+});
+```
+
+**Check Session**:
+```javascript
+const response = await fetch('/api/auth/session', {
+  credentials: 'include'
+});
+```
+
+**Sign Out**:
+```javascript
+const response = await fetch('/api/auth/sign-out', {
+  method: 'POST',
+  credentials: 'include'
+});
+```
+
+### Error Handling
+
+All endpoints return consistent error format:
+```json
+{
+  "error": "ERROR_CODE",
+  "message": "Human-readable error message",
+  "details": {} // Optional additional error details
+}
+```
+
+Common error codes:
+- `INVALID_EMAIL`: Email format is invalid
+- `EMAIL_ALREADY_EXISTS`: Email is already registered
+- `INVALID_CREDENTIALS`: Wrong email/password combination
+- `MISSING_FIELDS`: Required fields are missing
+- `NO_SESSION`: No active session found
+
+### CORS Configuration
+The API supports CORS for cross-origin requests. Include these headers in development:
+- `Access-Control-Allow-Origin`: Frontend domain
+- `Access-Control-Allow-Credentials`: true (for cookies)
+
+### Security Considerations
+- All authentication uses HTTPS in production
+- Session cookies are secure, HTTP-only, and use SameSite=None
+- Passwords should meet minimum security requirements (8+ characters)
+- Rate limiting is applied to sign-in attempts
+
+### State Management Recommendations
+- Store user data in React state/context after successful auth
+- Check session on app initialization
+- Clear user state on sign out
+- Handle 401 responses by redirecting to login
+
+### Testing Endpoints
+Use the provided Postman collection for testing:
+- Import `postman-collection.json`
+- Set `baseUrl` environment variable
+- Test complete auth flow with "Complete Auth Flow Test" folder
+
+SERVER_AUTH_URL API is built with Better Auth library and follows modern authentication best practices.
