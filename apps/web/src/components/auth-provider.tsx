@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from "react";
 import type { ReactNode } from "react";
+import { useRouterState } from "@tanstack/react-router";
 import {
   useSession,
   useSignIn,
@@ -33,8 +34,14 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
+  // Check if we're on the member route
+  const currentPath = useRouterState({
+    select: (s) => s.location.pathname,
+  });
+  const isMemberRoute = currentPath === "/member";
+
   // Use TanStack Query hooks for session management
-  const sessionQuery = useSession();
+  const sessionQuery = useSession({ enabled: isMemberRoute });
   const signInMutation = useSignIn();
   const signUpMutation = useSignUp();
   const signOutMutation = useSignOut();
@@ -81,11 +88,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     session: authState.session,
     isAuthenticated: authState.isAuthenticated,
     isLoading:
-      sessionQuery.isFetching ||
+      (isMemberRoute && sessionQuery.isFetching) ||
       signInMutation.isPending ||
       signUpMutation.isPending ||
       signOutMutation.isPending,
-    isSessionInitialized: sessionQuery.isFetched || sessionQuery.isError,
+    isSessionInitialized:
+      !isMemberRoute || sessionQuery.isFetched || sessionQuery.isError,
     error:
       sessionQuery.error?.message ||
       signInMutation.error?.message ||
