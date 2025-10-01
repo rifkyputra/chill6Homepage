@@ -2,3 +2,5 @@ node_modules
 .turbo
 .alchemy
 .env
+.env.local
+.env.*.local

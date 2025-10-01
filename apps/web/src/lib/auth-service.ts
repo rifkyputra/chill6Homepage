@@ -15,7 +15,8 @@ const getAuthServerUrl = () => {
     return envUrl.startsWith("http") ? envUrl : `https://${envUrl}`;
   }
 
-  return "http://localhost:3000";
+  // No fallback - require environment variable to be set
+  throw new Error("VITE_AUTH_SERVER_URL environment variable is required");
 };
 
 export class AuthService {
