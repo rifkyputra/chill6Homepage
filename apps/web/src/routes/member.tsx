@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/components/auth-provider";
 import { Button } from "@/components/ui/button";
@@ -20,22 +19,10 @@ export const Route = createFileRoute("/member")({
 });
 
 function MemberComponent() {
-  const {
-    isAuthenticated,
-    isLoading,
-    isSessionInitialized,
-    user,
-    initializeSession,
-  } = useAuth();
-
-  // Initialize session when this component mounts
-  useEffect(() => {
-    if (!isSessionInitialized) {
-      initializeSession();
-    }
-  }, [isSessionInitialized, initializeSession]);
+  const { isAuthenticated, isLoading, isSessionInitialized, user } = useAuth();
 
   // Show loading state while checking session
+  // TanStack Query automatically handles session initialization
   if (!isSessionInitialized || isLoading) {
     return (
       <div className="min-h-[calc(100vh-80px)] flex items-center justify-center">

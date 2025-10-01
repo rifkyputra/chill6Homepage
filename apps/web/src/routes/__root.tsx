@@ -5,6 +5,8 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
 import Loader from "@/components/loader";
@@ -14,6 +16,27 @@ import { Toaster } from "@/components/ui/sonner";
 import { useCartUrlNotification } from "@/lib/cart-notifications";
 import "../index.css";
 import HeaderRuna from "@/components/header-runa";
+
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      retry: (failureCount, error) => {
+        // Don't retry on 401/403 errors
+        if (
+          error &&
+          "status" in error &&
+          (error.status === 401 || error.status === 403)
+        ) {
+          return false;
+        }
+        return failureCount < 3;
+      },
+    },
+  },
+});
 
 export type RouterAppContext = {};
 
@@ -55,23 +78,26 @@ function RootComponent() {
   return (
     <>
       <HeadContent />
-      <AuthProvider>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          disableTransitionOnChange
-          storageKey="vite-ui-theme"
-        >
-          <div className="flex min-h-screen flex-col">
-            <HeaderComponent />
-            <main className="flex-1">
-              {isFetching ? <Loader /> : <Outlet />}
-            </main>
-            <Footer />
-          </div>
-          <Toaster richColors />
-        </ThemeProvider>
-      </AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            disableTransitionOnChange
+            storageKey="vite-ui-theme"
+          >
+            <div className="flex min-h-screen flex-col">
+              <HeaderComponent />
+              <main className="flex-1">
+                {isFetching ? <Loader /> : <Outlet />}
+              </main>
+              <Footer />
+            </div>
+            <Toaster richColors />
+          </ThemeProvider>
+        </AuthProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
       <TanStackRouterDevtools position="bottom-left" />
     </>
   );

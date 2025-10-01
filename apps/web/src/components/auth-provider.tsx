@@ -1,162 +1,103 @@
-import React, { createContext, useContext, useEffect, useReducer } from "react";
+import React, { createContext, useContext } from "react";
 import type { ReactNode } from "react";
-import { AuthService } from "../lib/auth-service";
-import type {
-  AuthState,
-  User,
-  Session,
-  SignInData,
-  SignUpData,
-} from "../lib/auth-types";
+import {
+  useSession,
+  useSignIn,
+  useSignUp,
+  useSignOut,
+  useRefreshSession,
+  useAuthState,
+} from "../lib/auth-queries";
+import type { User, Session, SignInData, SignUpData } from "../lib/auth-types";
 
-interface AuthContextType extends AuthState {
+interface AuthContextType {
+  // State
+  user: User | null;
+  session: Session | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  isSessionInitialized: boolean;
+  error: string | null;
+
+  // Actions
   signIn: (data: SignInData) => Promise<void>;
   signUp: (data: SignUpData) => Promise<void>;
   signOut: () => Promise<void>;
-  checkSession: () => Promise<void>;
-  initializeSession: () => Promise<void>;
+  refreshSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-type AuthAction =
-  | { type: "SET_LOADING"; payload: boolean }
-  | { type: "SET_USER"; payload: { user: User; session: Session } }
-  | { type: "CLEAR_USER" }
-  | { type: "SET_SESSION_INITIALIZED" }
-  | { type: "SET_ERROR"; payload: string };
-
-const authReducer = (state: AuthState, action: AuthAction): AuthState => {
-  switch (action.type) {
-    case "SET_LOADING":
-      return { ...state, isLoading: action.payload };
-    case "SET_USER":
-      return {
-        ...state,
-        user: action.payload.user,
-        session: action.payload.session,
-        isAuthenticated: true,
-        isLoading: false,
-        isSessionInitialized: true,
-      };
-    case "CLEAR_USER":
-      return {
-        ...state,
-        user: null,
-        session: null,
-        isAuthenticated: false,
-        isLoading: false,
-        isSessionInitialized: true,
-      };
-    case "SET_SESSION_INITIALIZED":
-      return {
-        ...state,
-        isSessionInitialized: true,
-        isLoading: false,
-      };
-    default:
-      return state;
-  }
-};
-
-const initialState: AuthState = {
-  user: null,
-  session: null,
-  isLoading: false,
-  isAuthenticated: false,
-  isSessionInitialized: false,
-};
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [state, dispatch] = useReducer(authReducer, initialState);
+  // Use TanStack Query hooks for session management
+  const sessionQuery = useSession();
+  const signInMutation = useSignIn();
+  const signUpMutation = useSignUp();
+  const signOutMutation = useSignOut();
+  const refreshSessionMutation = useRefreshSession();
+
+  // Get current auth state from query cache
+  const authState = useAuthState();
 
   const signIn = async (data: SignInData) => {
     try {
-      dispatch({ type: "SET_LOADING", payload: true });
-      const response = await AuthService.signIn(data);
-      dispatch({
-        type: "SET_USER",
-        payload: { user: response.user, session: response.session },
-      });
+      await signInMutation.mutateAsync(data);
     } catch (error) {
-      dispatch({ type: "CLEAR_USER" });
       throw error;
     }
   };
 
   const signUp = async (data: SignUpData) => {
     try {
-      dispatch({ type: "SET_LOADING", payload: true });
-      const response = await AuthService.signUp(data);
-      dispatch({
-        type: "SET_USER",
-        payload: { user: response.user, session: response.session },
-      });
+      await signUpMutation.mutateAsync(data);
     } catch (error) {
-      dispatch({ type: "CLEAR_USER" });
       throw error;
     }
   };
 
   const signOut = async () => {
     try {
-      dispatch({ type: "SET_LOADING", payload: true });
-      await AuthService.signOut();
-      dispatch({ type: "CLEAR_USER" });
+      await signOutMutation.mutateAsync();
     } catch (error) {
-      // Even if the server request fails, clear the local state
-      dispatch({ type: "CLEAR_USER" });
       throw error;
     }
   };
 
-  const checkSession = async () => {
+  const refreshSession = async () => {
     try {
-      dispatch({ type: "SET_LOADING", payload: true });
-      const response = await AuthService.getSession();
-      dispatch({
-        type: "SET_USER",
-        payload: { user: response.user, session: response.session },
-      });
+      await refreshSessionMutation.mutateAsync();
     } catch (error) {
-      // If session check fails, user is not authenticated
-      dispatch({ type: "CLEAR_USER" });
-    }
-  };
-
-  const initializeSession = async () => {
-    if (state.isSessionInitialized) return;
-
-    try {
-      dispatch({ type: "SET_LOADING", payload: true });
-      const response = await AuthService.getSession();
-      dispatch({
-        type: "SET_USER",
-        payload: { user: response.user, session: response.session },
-      });
-    } catch (error) {
-      // If session check fails, user is not authenticated
-      console.warn("Session initialization failed:", error);
-      dispatch({ type: "CLEAR_USER" });
-    } finally {
-      // Always mark session as initialized to prevent endless loops
-      if (!state.isSessionInitialized) {
-        dispatch({ type: "SET_SESSION_INITIALIZED" });
-      }
+      throw error;
     }
   };
 
   const value: AuthContextType = {
-    ...state,
+    // State from TanStack Query
+    user: authState.user,
+    session: authState.session,
+    isAuthenticated: authState.isAuthenticated,
+    isLoading:
+      sessionQuery.isFetching ||
+      signInMutation.isPending ||
+      signUpMutation.isPending ||
+      signOutMutation.isPending,
+    isSessionInitialized: sessionQuery.isFetched || sessionQuery.isError,
+    error:
+      sessionQuery.error?.message ||
+      signInMutation.error?.message ||
+      signUpMutation.error?.message ||
+      signOutMutation.error?.message ||
+      null,
+
+    // Actions
     signIn,
     signUp,
     signOut,
-    checkSession,
-    initializeSession,
+    refreshSession,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
