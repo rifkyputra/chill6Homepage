@@ -120,7 +120,7 @@ the server sets a `better-auth.session_token` cookie that is automatically inclu
 
 **Headers Set**: `Set-Cookie: better-auth.session_token=...` (session cookie)
 
-#### GET /api/auth/session
+#### GET /api/auth/get-session
 **Purpose**: Get current user session information
 **Authentication**: Required (session cookie)
 **Content-Type**: None (GET request)
@@ -222,7 +222,7 @@ const response = await fetch('/api/auth/sign-in/email', {
 
 **Check Session**:
 ```javascript
-const response = await fetch('/api/auth/session', {
+const response = await fetch('/api/auth/get-session', {
   credentials: 'include'
 });
 ```

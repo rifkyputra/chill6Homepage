@@ -96,7 +96,7 @@ export class AuthService {
   }
 
   static async getSession(): Promise<AuthResponse> {
-    return this.makeRequest<AuthResponse>("/api/auth/session");
+    return this.makeRequest<AuthResponse>("/api/auth/get-session");
   }
 
   static async checkHealth(): Promise<string> {
