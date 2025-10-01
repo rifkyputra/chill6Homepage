@@ -140,7 +140,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
     } catch (error) {
       // If session check fails, user is not authenticated
-      dispatch({ type: "SET_SESSION_INITIALIZED" });
+      console.warn("Session initialization failed:", error);
+      dispatch({ type: "CLEAR_USER" });
+    } finally {
+      // Always mark session as initialized to prevent endless loops
+      if (!state.isSessionInitialized) {
+        dispatch({ type: "SET_SESSION_INITIALIZED" });
+      }
     }
   };
 

@@ -39,15 +39,31 @@ export class AuthService {
 
     try {
       const response = await fetch(url, config);
-      const data = await response.json();
 
+      // Check if response is ok first
       if (!response.ok) {
-        console.error("API Error:", data); // Debug log
-        throw new Error(
-          data.message || `HTTP error! status: ${response.status}`
-        );
+        let errorMessage = `HTTP error! status: ${response.status}`;
+
+        // Try to parse error response if it has content
+        try {
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const errorData = await response.json();
+            errorMessage = errorData.message || errorMessage;
+          }
+        } catch {
+          // If we can't parse the error response, use the default message
+        }
+
+        console.error("API Error:", {
+          status: response.status,
+          message: errorMessage,
+        });
+        throw new Error(errorMessage);
       }
 
+      // Only try to parse JSON if response is ok
+      const data = await response.json();
       return data;
     } catch (error) {
       console.error("Request failed:", error); // Debug log
