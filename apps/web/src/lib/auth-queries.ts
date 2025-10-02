@@ -35,7 +35,7 @@ export function useSession(options?: { enabled?: boolean }) {
       }
       return failureCount < 2;
     },
-    refetchOnWindowFocus: true, // Always refetch on window focus
+    refetchOnWindowFocus: false, // Always refetch on window focus
     refetchOnMount: "always", // Always check session on mount for security
     enabled: options?.enabled !== false,
   });
