@@ -18,9 +18,23 @@ export interface Session {
   createdAt: string;
 }
 
+// Standard auth response with session data
 export interface AuthResponse {
   user: User;
   session: Session;
+}
+
+// HttpOnly cookie-based auth response (no token in body)
+export interface HttpOnlyAuthResponse {
+  user: User;
+  success: boolean;
+  message?: string;
+}
+
+// Session response for HttpOnly cookies
+export interface HttpOnlySessionResponse {
+  user: User | null;
+  session: Session | null;
 }
 
 export interface SignUpData {

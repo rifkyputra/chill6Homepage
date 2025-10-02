@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AuthService } from "./auth-service";
-import type { SignInData, SignUpData, AuthResponse } from "./auth-types";
+import type {
+  SignInData,
+  SignUpData,
+  HttpOnlyAuthResponse,
+  HttpOnlySessionResponse,
+} from "./auth-types";
 
 // Query keys for consistent caching
 export const authKeys = {
@@ -36,18 +41,23 @@ export function useSession(options?: { enabled?: boolean }) {
 }
 
 /**
- * Hook for signing in users
+ * Hook for signing in users with HttpOnly cookies
  */
 export function useSignIn() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (data: SignInData) => AuthService.signIn(data),
-    onSuccess: (data: AuthResponse) => {
-      // Update the session cache with the new user data
-      queryClient.setQueryData(authKeys.session(), data);
+    onSuccess: async (data: HttpOnlyAuthResponse) => {
+      // After successful sign-in, fetch the session to get complete auth data
+      try {
+        const sessionData = await AuthService.getSession();
+        queryClient.setQueryData(authKeys.session(), sessionData);
+      } catch (error) {
+        console.error("Failed to fetch session after sign-in:", error);
+      }
 
-      // Invalidate and refetch any related queries if needed
+      // Invalidate and refetch any related queries
       queryClient.invalidateQueries({
         queryKey: authKeys.all,
         exact: false,
@@ -63,18 +73,23 @@ export function useSignIn() {
 }
 
 /**
- * Hook for signing up users
+ * Hook for signing up users with HttpOnly cookies
  */
 export function useSignUp() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (data: SignUpData) => AuthService.signUp(data),
-    onSuccess: (data: AuthResponse) => {
-      // Update the session cache with the new user data
-      queryClient.setQueryData(authKeys.session(), data);
+    onSuccess: async (data: HttpOnlyAuthResponse) => {
+      // After successful sign-up, fetch the session to get complete auth data
+      try {
+        const sessionData = await AuthService.getSession();
+        queryClient.setQueryData(authKeys.session(), sessionData);
+      } catch (error) {
+        console.error("Failed to fetch session after sign-up:", error);
+      }
 
-      // Invalidate and refetch any related queries if needed
+      // Invalidate and refetch any related queries
       queryClient.invalidateQueries({
         queryKey: authKeys.all,
         exact: false,
@@ -116,14 +131,14 @@ export function useSignOut() {
 }
 
 /**
- * Hook for manually refreshing the session
+ * Hook for manually refreshing the session with HttpOnly cookies
  */
 export function useRefreshSession() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: () => AuthService.getSession(),
-    onSuccess: (data: AuthResponse) => {
+    onSuccess: (data: HttpOnlySessionResponse) => {
       // Update the session cache
       queryClient.setQueryData(authKeys.session(), data);
     },
@@ -142,7 +157,7 @@ export function useRefreshSession() {
 export function useAuthState() {
   const queryClient = useQueryClient();
   const sessionData = queryClient.getQueryData(authKeys.session()) as
-    | AuthResponse
+    | HttpOnlySessionResponse
     | undefined;
 
   return {

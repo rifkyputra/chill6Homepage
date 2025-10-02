@@ -1,7 +1,8 @@
 import type {
   SignInData,
   SignUpData,
-  AuthResponse,
+  HttpOnlyAuthResponse,
+  HttpOnlySessionResponse,
   AuthError,
 } from "./auth-types";
 
@@ -30,9 +31,10 @@ export class AuthService {
     const hasBody = options.body !== undefined && options.body !== null;
 
     const config: RequestInit = {
-      credentials: "include",
+      credentials: "include", // Essential for HttpOnly cookies
       headers: {
         ...(hasBody && { "Content-Type": "application/json" }),
+        // Ensure CORS headers for cross-origin requests
         Origin: window.location.origin,
         ...options.headers,
       },
@@ -78,28 +80,59 @@ export class AuthService {
     }
   }
 
-  static async signUp(data: SignUpData): Promise<AuthResponse> {
-    return this.makeRequest<AuthResponse>("/api/auth/sign-up/email", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+  static async signUp(data: SignUpData): Promise<HttpOnlyAuthResponse> {
+    const response = await this.makeRequest<HttpOnlyAuthResponse>(
+      "/api/auth/sign-up/email",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+
+    return response;
   }
 
-  static async signIn(data: SignInData): Promise<AuthResponse> {
-    return this.makeRequest<AuthResponse>("/api/auth/sign-in/email", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+  static async signIn(data: SignInData): Promise<HttpOnlyAuthResponse> {
+    console.log("Signing in with HttpOnly cookies..."); // Debug log
+    const response = await this.makeRequest<HttpOnlyAuthResponse>(
+      "/api/auth/sign-in/email",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+    console.log("Sign-in response:", response); // Debug log
+    console.log("Cookies after sign-in:", document.cookie); // Debug log
+
+    return response;
   }
 
   static async signOut(): Promise<{ success: boolean; message: string }> {
-    return this.makeRequest("/api/auth/sign-out", {
+    const response = await this.makeRequest<{
+      success: boolean;
+      message: string;
+    }>("/api/auth/sign-out", {
       method: "POST",
     });
+
+    return response;
   }
 
-  static async getSession(): Promise<AuthResponse> {
-    return this.makeRequest<AuthResponse>("/api/auth/get-session");
+  static async getSession(): Promise<HttpOnlySessionResponse> {
+    console.log("Getting session with HttpOnly cookies..."); // Debug log
+    console.log("Current cookies:", document.cookie); // Debug log
+
+    try {
+      const response = await this.makeRequest<HttpOnlySessionResponse>(
+        "/api/auth/get-session"
+      );
+      console.log("Session response:", response); // Debug log
+      return response;
+    } catch (error) {
+      console.error("Session request failed:", error);
+      // Return null session if the request fails (user not authenticated)
+      return { user: null, session: null };
+    }
   }
 
   static async checkHealth(): Promise<string> {
@@ -107,5 +140,42 @@ export class AuthService {
       credentials: "include",
     });
     return response.text();
+  }
+
+  // Debug method to test session endpoint directly
+  static async testSession(): Promise<any> {
+    try {
+      console.log("Testing session endpoint directly...");
+      console.log("Current cookies:", document.cookie);
+
+      const response = await fetch(`${this.baseUrl}/api/auth/get-session`, {
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log("Session response status:", response.status);
+      console.log(
+        "Session response headers:",
+        Object.fromEntries(response.headers.entries())
+      );
+
+      if (!response.ok) {
+        console.error(
+          "Session request failed:",
+          response.status,
+          response.statusText
+        );
+        return null;
+      }
+
+      const data = await response.json();
+      console.log("Session data:", data);
+      return data;
+    } catch (error) {
+      console.error("Session test failed:", error);
+      return null;
+    }
   }
 }
