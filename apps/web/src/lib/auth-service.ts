@@ -27,10 +27,13 @@ export class AuthService {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
+    const hasBody = options.body !== undefined && options.body !== null;
+
     const config: RequestInit = {
       credentials: "include",
       headers: {
-        "Content-Type": "application/json",
+        ...(hasBody && { "Content-Type": "application/json" }),
+        Origin: window.location.origin,
         ...options.headers,
       },
       ...options,
