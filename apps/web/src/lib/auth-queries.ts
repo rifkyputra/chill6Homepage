@@ -23,8 +23,8 @@ export function useSession(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: authKeys.session(),
     queryFn: () => AuthService.getSession(),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 0,
+    gcTime: 3 * 60 * 1000,
     retry: (failureCount, error) => {
       // Don't retry on auth errors
       if (error && typeof error === "object" && "status" in error) {
@@ -35,7 +35,7 @@ export function useSession(options?: { enabled?: boolean }) {
       }
       return failureCount < 2;
     },
-    refetchOnWindowFocus: false, // Don't refetch on window focus
+    refetchOnWindowFocus: true, // Always refetch on window focus
     refetchOnMount: "always", // Always check session on mount for security
     enabled: options?.enabled !== false,
   });
