@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AuthService } from "./auth-service";
+import { authClient } from "./auth-client";
 import type {
   SignInData,
   SignUpData,
@@ -16,7 +17,7 @@ export const authKeys = {
 
 /**
  * Hook for managing session state with TanStack Query
- * TanStack Query automatically handles request deduplication, caching, and background refetching
+ * Now uses better-auth client for session management
  */
 export function useSession(options?: { enabled?: boolean }) {
   return useQuery({
@@ -41,7 +42,7 @@ export function useSession(options?: { enabled?: boolean }) {
 }
 
 /**
- * Hook for signing in users with HttpOnly cookies
+ * Hook for signing in users with better-auth client
  */
 export function useSignIn() {
   const queryClient = useQueryClient();
@@ -73,7 +74,7 @@ export function useSignIn() {
 }
 
 /**
- * Hook for signing up users with HttpOnly cookies
+ * Hook for signing up users with better-auth client
  */
 export function useSignUp() {
   const queryClient = useQueryClient();
@@ -131,7 +132,7 @@ export function useSignOut() {
 }
 
 /**
- * Hook for manually refreshing the session with HttpOnly cookies
+ * Hook for manually refreshing the session with better-auth client
  */
 export function useRefreshSession() {
   const queryClient = useQueryClient();

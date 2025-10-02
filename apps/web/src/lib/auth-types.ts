@@ -3,19 +3,19 @@ export interface User {
   name: string;
   email: string;
   emailVerified: boolean;
-  image: string | null;
-  createdAt: string;
-  updatedAt: string;
+  image?: string | null | undefined;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Session {
   id: string;
   userId: string;
-  expiresAt: string;
+  expiresAt: Date;
   token: string;
-  ipAddress?: string;
-  userAgent?: string;
-  createdAt: string;
+  ipAddress?: string | null | undefined;
+  userAgent?: string | null | undefined;
+  createdAt: Date;
 }
 
 // Standard auth response with session data
