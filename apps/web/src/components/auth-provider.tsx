@@ -41,7 +41,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const isMemberRoute = currentPath === "/member";
 
   // Use TanStack Query hooks for session management
-  const sessionQuery = useSession({ enabled: isMemberRoute });
+  const sessionQuery = useSession({ enabled: true });
   const signInMutation = useSignIn();
   const signUpMutation = useSignUp();
   const signOutMutation = useSignOut();
