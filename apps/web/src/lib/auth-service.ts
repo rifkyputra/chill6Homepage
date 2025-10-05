@@ -90,7 +90,9 @@ export class AuthService {
       console.log("Getting session with better-auth client..."); // Debug log
       console.log("Current cookies:", document.cookie); // Debug log
 
-      const response = await authClient.getSession();
+      const response = await authClient.getSession({
+        fetchOptions: { credentials: "include" },
+      });
       console.log("Session response:", response); // Debug log
 
       if (response.error) {

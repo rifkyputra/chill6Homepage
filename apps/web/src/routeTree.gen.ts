@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as MemberRouteImport } from './routes/member'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CalendarRouteImport } from './routes/calendar'
@@ -34,6 +35,11 @@ const SignInRoute = SignInRouteImport.update({
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrdersRoute = OrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MemberRoute = MemberRouteImport.update({
@@ -83,6 +89,7 @@ export interface FileRoutesByFullPath {
   '/calendar': typeof CalendarRoute
   '/contact': typeof ContactRoute
   '/member': typeof MemberRoute
+  '/orders': typeof OrdersRoute
   '/services': typeof ServicesRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
@@ -96,6 +103,7 @@ export interface FileRoutesByTo {
   '/calendar': typeof CalendarRoute
   '/contact': typeof ContactRoute
   '/member': typeof MemberRoute
+  '/orders': typeof OrdersRoute
   '/services': typeof ServicesRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
@@ -110,6 +118,7 @@ export interface FileRoutesById {
   '/calendar': typeof CalendarRoute
   '/contact': typeof ContactRoute
   '/member': typeof MemberRoute
+  '/orders': typeof OrdersRoute
   '/services': typeof ServicesRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
@@ -125,6 +134,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/contact'
     | '/member'
+    | '/orders'
     | '/services'
     | '/sign-in'
     | '/sign-up'
@@ -138,6 +148,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/contact'
     | '/member'
+    | '/orders'
     | '/services'
     | '/sign-in'
     | '/sign-up'
@@ -151,6 +162,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/contact'
     | '/member'
+    | '/orders'
     | '/services'
     | '/sign-in'
     | '/sign-up'
@@ -165,6 +177,7 @@ export interface RootRouteChildren {
   CalendarRoute: typeof CalendarRoute
   ContactRoute: typeof ContactRoute
   MemberRoute: typeof MemberRoute
+  OrdersRoute: typeof OrdersRoute
   ServicesRoute: typeof ServicesRoute
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
@@ -194,6 +207,13 @@ declare module '@tanstack/react-router' {
       path: '/services'
       fullPath: '/services'
       preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orders': {
+      id: '/orders'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof OrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/member': {
@@ -261,6 +281,7 @@ const rootRouteChildren: RootRouteChildren = {
   CalendarRoute: CalendarRoute,
   ContactRoute: ContactRoute,
   MemberRoute: MemberRoute,
+  OrdersRoute: OrdersRoute,
   ServicesRoute: ServicesRoute,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,

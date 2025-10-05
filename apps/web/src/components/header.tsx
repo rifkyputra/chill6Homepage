@@ -21,6 +21,7 @@ export default function Header() {
     { to: "/services", label: "Layanan" },
     { to: "/calendar", label: "Kalender" },
     { to: "/member", label: "Member" },
+    { to: "/orders", label: "Orders" },
     { to: "/contact", label: "Kontak" },
   ] as const;
 
