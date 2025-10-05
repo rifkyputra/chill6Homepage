@@ -80,7 +80,7 @@ export function useCreateOrder() {
     onSuccess: (newOrder) => {
       // Invalidate and refetch orders list
       queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
-      
+
       // Add the new order to the cache
       queryClient.setQueryData(orderKeys.detail(newOrder.id), newOrder);
     },
@@ -102,7 +102,7 @@ export function useUpdateOrderStatus() {
     onSuccess: (updatedOrder) => {
       // Update the specific order in cache
       queryClient.setQueryData(orderKeys.detail(updatedOrder.id), updatedOrder);
-      
+
       // Invalidate orders list to refresh the list view
       queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
     },

@@ -18,12 +18,12 @@ export interface Order {
   updatedAt: Date;
 }
 
-export type OrderStatus = 
-  | "pending" 
-  | "confirmed" 
-  | "processing" 
-  | "shipped" 
-  | "delivered" 
+export type OrderStatus =
+  | "pending"
+  | "confirmed"
+  | "processing"
+  | "shipped"
+  | "delivered"
   | "cancelled";
 
 export interface UpdateOrderStatusData {

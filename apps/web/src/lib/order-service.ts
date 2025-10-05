@@ -7,7 +7,8 @@ import type {
   ValidateTokenResponse,
 } from "./order-types";
 
-const ORDER_BASE_URL = "https://auth-multi-tenants-order-service.rifqempul.workers.dev";
+const ORDER_BASE_URL =
+  "https://auth-multi-tenants-order-service.rifqempul.workers.dev";
 
 export class OrderService {
   private static async getAuthHeaders(): Promise<HeadersInit> {
@@ -24,7 +25,7 @@ export class OrderService {
     options: RequestInit = {}
   ): Promise<T> {
     const headers = await this.getAuthHeaders();
-    
+
     const response = await fetch(`${ORDER_BASE_URL}${endpoint}`, {
       ...options,
       headers: {
@@ -42,7 +43,9 @@ export class OrderService {
         throw new Error("Resource not found");
       }
       if (response.status === 400) {
-        const errorData = await response.json().catch(() => ({ message: "Bad request" }));
+        const errorData = await response
+          .json()
+          .catch(() => ({ message: "Bad request" }));
         throw new Error(errorData.message || "Bad request");
       }
       if (response.status === 405) {

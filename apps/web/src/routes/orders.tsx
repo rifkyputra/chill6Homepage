@@ -5,18 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/components/auth-provider";
 import { ProtectedRoute } from "@/components/protected-route";
@@ -26,11 +26,11 @@ import {
   useUpdateOrderStatus,
   useOrderServiceHealth,
 } from "@/lib/order-queries";
-import type { 
-  CreateOrderData, 
-  Order, 
-  OrderStatus, 
-  OrderItem 
+import type {
+  CreateOrderData,
+  Order,
+  OrderStatus,
+  OrderItem,
 } from "@/lib/order-types";
 import { getProductById } from "@/lib/products-data";
 import {
@@ -59,20 +59,18 @@ export const Route = createFileRoute("/orders")({
 function OrdersComponent() {
   const { user } = useAuth();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  
+
   // Queries
-  const { 
-    data: orders = [], 
-    isLoading: isLoadingOrders, 
+  const {
+    data: orders = [],
+    isLoading: isLoadingOrders,
     error: ordersError,
-    refetch: refetchOrders
+    refetch: refetchOrders,
   } = useOrders();
-  
-  const { 
-    data: healthStatus, 
-    isLoading: isLoadingHealth 
-  } = useOrderServiceHealth();
-  
+
+  const { data: healthStatus, isLoading: isLoadingHealth } =
+    useOrderServiceHealth();
+
   // Mutations
   const createOrderMutation = useCreateOrder();
   const updateOrderStatusMutation = useUpdateOrderStatus();
@@ -132,7 +130,10 @@ function OrdersComponent() {
     }).format(amount);
   };
 
-  const handleUpdateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
+  const handleUpdateOrderStatus = async (
+    orderId: string,
+    newStatus: OrderStatus
+  ) => {
     try {
       await updateOrderStatusMutation.mutateAsync({
         id: orderId,
@@ -162,8 +163,8 @@ function OrdersComponent() {
               <AlertCircle className="h-5 w-5" />
               <span>Failed to load orders</span>
             </div>
-            <Button 
-              onClick={() => refetchOrders()} 
+            <Button
+              onClick={() => refetchOrders()}
               className="w-full mt-4"
               variant="outline"
             >
@@ -193,7 +194,10 @@ function OrdersComponent() {
               Checking...
             </Badge>
           ) : healthStatus ? (
-            <Badge variant="outline" className="text-green-600 border-green-200">
+            <Badge
+              variant="outline"
+              className="text-green-600 border-green-200"
+            >
               <CheckCircle className="h-3 w-3 mr-1" />
               Service Online
             </Badge>
@@ -203,8 +207,8 @@ function OrdersComponent() {
               Service Offline
             </Badge>
           )}
-          
-          <CreateOrderDialog 
+
+          <CreateOrderDialog
             isOpen={isCreateDialogOpen}
             onOpenChange={setIsCreateDialogOpen}
             onSuccess={() => setIsCreateDialogOpen(false)}
@@ -219,7 +223,8 @@ function OrdersComponent() {
             <ShoppingCart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">No orders yet</h3>
             <p className="text-muted-foreground mb-4">
-              You haven't placed any orders. Create your first order to get started!
+              You haven't placed any orders. Create your first order to get
+              started!
             </p>
             <Button onClick={() => setIsCreateDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
@@ -319,7 +324,9 @@ function OrderCard({ order, onUpdateStatus, isUpdating }: OrderCardProps) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-lg">Order #{order.id.slice(-8)}</CardTitle>
+            <CardTitle className="text-lg">
+              Order #{order.id.slice(-8)}
+            </CardTitle>
             <p className="text-sm text-muted-foreground">
               Placed on {formatDate(order.createdAt)}
             </p>
@@ -329,7 +336,7 @@ function OrderCard({ order, onUpdateStatus, isUpdating }: OrderCardProps) {
               {getStatusIcon(order.status)}
               <span className="ml-1 capitalize">{order.status}</span>
             </Badge>
-            
+
             {nextStatuses[order.status].length > 0 && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -406,11 +413,15 @@ interface CreateOrderDialogProps {
   onSuccess: () => void;
 }
 
-function CreateOrderDialog({ isOpen, onOpenChange, onSuccess }: CreateOrderDialogProps) {
+function CreateOrderDialog({
+  isOpen,
+  onOpenChange,
+  onSuccess,
+}: CreateOrderDialogProps) {
   const [orderItems, setOrderItems] = useState<OrderItem[]>([
     { productId: "", quantity: 1, price: 0 },
   ]);
-  
+
   const createOrderMutation = useCreateOrder();
 
   const addItem = () => {
@@ -423,7 +434,11 @@ function CreateOrderDialog({ isOpen, onOpenChange, onSuccess }: CreateOrderDialo
     }
   };
 
-  const updateItem = (index: number, field: keyof OrderItem, value: string | number) => {
+  const updateItem = (
+    index: number,
+    field: keyof OrderItem,
+    value: string | number
+  ) => {
     const updatedItems = orderItems.map((item, i) =>
       i === index ? { ...item, [field]: value } : item
     );
@@ -432,12 +447,12 @@ function CreateOrderDialog({ isOpen, onOpenChange, onSuccess }: CreateOrderDialo
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate items
     const validItems = orderItems.filter(
       (item) => item.productId && item.quantity > 0 && item.price > 0
     );
-    
+
     if (validItems.length === 0) {
       toast.error("Please add at least one valid item");
       return;
@@ -492,7 +507,11 @@ function CreateOrderDialog({ isOpen, onOpenChange, onSuccess }: CreateOrderDialo
                       min="1"
                       value={item.quantity}
                       onChange={(e) =>
-                        updateItem(index, "quantity", parseInt(e.target.value) || 1)
+                        updateItem(
+                          index,
+                          "quantity",
+                          parseInt(e.target.value) || 1
+                        )
                       }
                       required
                     />
@@ -506,7 +525,11 @@ function CreateOrderDialog({ isOpen, onOpenChange, onSuccess }: CreateOrderDialo
                       step="1000"
                       value={item.price}
                       onChange={(e) =>
-                        updateItem(index, "price", parseInt(e.target.value) || 0)
+                        updateItem(
+                          index,
+                          "price",
+                          parseInt(e.target.value) || 0
+                        )
                       }
                       placeholder="0"
                       required
@@ -526,7 +549,7 @@ function CreateOrderDialog({ isOpen, onOpenChange, onSuccess }: CreateOrderDialo
                 </div>
               </Card>
             ))}
-            
+
             <Button type="button" variant="outline" onClick={addItem}>
               <Plus className="h-4 w-4 mr-2" />
               Add Item
@@ -541,10 +564,7 @@ function CreateOrderDialog({ isOpen, onOpenChange, onSuccess }: CreateOrderDialo
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={createOrderMutation.isPending}
-            >
+            <Button type="submit" disabled={createOrderMutation.isPending}>
               {createOrderMutation.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
