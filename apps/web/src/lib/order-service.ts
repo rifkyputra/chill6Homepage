@@ -11,13 +11,45 @@ const ORDER_BASE_URL =
   "https://auth-multi-tenants-order-service.rifqempul.workers.dev";
 
 export class OrderService {
+  private static async getAuthToken(): Promise<string | null> {
+    try {
+      // Try to get session to extract token
+      const { authClient } = await import("./auth-client");
+      const sessionResponse = await authClient.getSession();
+
+      if (sessionResponse.data?.session?.token) {
+        return sessionResponse.data.session.token;
+      }
+
+      // Try to get token from localStorage as fallback
+      if (typeof window !== "undefined") {
+        const token =
+          localStorage.getItem("auth-token") ||
+          localStorage.getItem("session-token") ||
+          localStorage.getItem("access-token");
+        if (token) return token;
+      }
+
+      return null;
+    } catch (error) {
+      console.log("Could not get auth token:", error);
+      return null;
+    }
+  }
+
   private static async getAuthHeaders(): Promise<HeadersInit> {
-    // Get token from cookies (since we're using HttpOnly cookies)
-    // The browser will automatically include cookies in requests
-    return {
+    const headers: HeadersInit = {
       "Content-Type": "application/json",
-      // Authorization header will be handled by cookies
+      Origin: "https://chill6.space",
     };
+
+    // Try to get authentication token
+    const token = await this.getAuthToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    return headers;
   }
 
   private static async makeRequest<T>(
@@ -160,6 +192,28 @@ export class OrderService {
       return response;
     } catch (error) {
       console.error(`Failed to fetch user ${userId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Debug method to test authentication headers
+   */
+  static async debugAuth(): Promise<any> {
+    try {
+      const headers = await this.getAuthHeaders();
+      const token = await this.getAuthToken();
+
+      return {
+        headers: headers,
+        hasToken: !!token,
+        token: token ? `${token.substring(0, 10)}...` : null,
+        cookies:
+          typeof document !== "undefined" ? document.cookie : "Not available",
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      console.error("Debug auth failed:", error);
       throw error;
     }
   }
