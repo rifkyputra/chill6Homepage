@@ -17,7 +17,13 @@ export class OrderService {
       const { authClient } = await import("./auth-client");
       const sessionResponse = await authClient.getSession();
 
+      console.log("Order Service - Session response:", sessionResponse);
+
       if (sessionResponse.data?.session?.token) {
+        console.log(
+          "Order Service - Found token in session:",
+          sessionResponse.data.session.token.substring(0, 10) + "..."
+        );
         return sessionResponse.data.session.token;
       }
 
@@ -27,12 +33,16 @@ export class OrderService {
           localStorage.getItem("auth-token") ||
           localStorage.getItem("session-token") ||
           localStorage.getItem("access-token");
-        if (token) return token;
+        if (token) {
+          console.log("Order Service - Found token in localStorage");
+          return token;
+        }
       }
 
+      console.log("Order Service - No token found");
       return null;
     } catch (error) {
-      console.log("Could not get auth token:", error);
+      console.log("Order Service - Could not get auth token:", error);
       return null;
     }
   }
@@ -45,10 +55,19 @@ export class OrderService {
 
     // Try to get authentication token
     const token = await this.getAuthToken();
+    console.log(
+      "Order Service - Token for headers:",
+      token ? token.substring(0, 10) + "..." : "None"
+    );
+
     if (token) {
       headers.Authorization = `Bearer ${token}`;
+      console.log("Order Service - Added Authorization header");
+    } else {
+      console.log("Order Service - No Authorization header added");
     }
 
+    console.log("Order Service - Final headers:", headers);
     return headers;
   }
 
@@ -204,10 +223,32 @@ export class OrderService {
       const headers = await this.getAuthHeaders();
       const token = await this.getAuthToken();
 
+      // Get detailed session info
+      const { authClient } = await import("./auth-client");
+      const sessionResponse = await authClient.getSession();
+
       return {
         headers: headers,
         hasToken: !!token,
         token: token ? `${token.substring(0, 10)}...` : null,
+        fullToken: token, // Include full token for debugging
+        sessionResponse: {
+          hasData: !!sessionResponse.data,
+          hasSession: !!sessionResponse.data?.session,
+          hasSessionToken: !!sessionResponse.data?.session?.token,
+          sessionToken: sessionResponse.data?.session?.token
+            ? `${sessionResponse.data.session.token.substring(0, 10)}...`
+            : null,
+          error: sessionResponse.error,
+        },
+        localStorage:
+          typeof window !== "undefined"
+            ? {
+                authToken: localStorage.getItem("auth-token"),
+                sessionToken: localStorage.getItem("session-token"),
+                accessToken: localStorage.getItem("access-token"),
+              }
+            : "Not available",
         cookies:
           typeof document !== "undefined" ? document.cookie : "Not available",
         timestamp: new Date().toISOString(),
