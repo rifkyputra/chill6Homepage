@@ -61,7 +61,7 @@ export function OrderDebugComponent() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        "https://auth-multi-tenants-order-service.rifqempul.workers.dev/orders",
+        `${import.meta.env.VITE_ORDER_SERVICE_URL}/orders`,
         {
           credentials: "include",
           headers: {
@@ -93,7 +93,7 @@ export function OrderDebugComponent() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        "https://auth-multi-tenants-order-service.rifqempul.workers.dev/orders",
+        `${import.meta.env.VITE_ORDER_SERVICE_URL}/orders`,
         {
           method: "GET",
           credentials: "include",
@@ -141,7 +141,7 @@ export function OrderDebugComponent() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        "https://auth-multi-tenants-order-service.rifqempul.workers.dev/orders",
+        `${import.meta.env.VITE_ORDER_SERVICE_URL}/orders`,
         {
           method: "OPTIONS",
           headers: {
@@ -207,6 +207,35 @@ export function OrderDebugComponent() {
     setIsLoading(false);
   };
 
+  const testDirectAuthService = async () => {
+    setIsLoading(true);
+    try {
+      // Import AuthService directly
+      const { AuthService } = await import("@/lib/auth-service");
+      const sessionData = await AuthService.getSession();
+
+      setDebugInfo({
+        type: "direct-auth-service",
+        data: {
+          sessionData,
+          hasUser: !!sessionData.user,
+          hasSession: !!sessionData.session,
+          sessionToken: sessionData.session?.token
+            ? `${sessionData.session.token.substring(0, 10)}...`
+            : null,
+        },
+        success: true,
+      });
+    } catch (error) {
+      setDebugInfo({
+        type: "direct-auth-service",
+        error: error instanceof Error ? error.message : String(error),
+        success: false,
+      });
+    }
+    setIsLoading(false);
+  };
+
   const testWithManualToken = async () => {
     if (!manualToken.trim()) {
       setDebugInfo({
@@ -220,7 +249,7 @@ export function OrderDebugComponent() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        "https://auth-multi-tenants-order-service.rifqempul.workers.dev/orders",
+        `${import.meta.env.VITE_ORDER_SERVICE_URL}/orders`,
         {
           method: "GET",
           credentials: "include",
@@ -269,7 +298,7 @@ export function OrderDebugComponent() {
           </p>
           <p>
             Target API:
-            https://auth-multi-tenants-order-service.rifqempul.workers.dev
+            {import.meta.env.VITE_ORDER_SERVICE_URL}
           </p>
           <p>CORS Origin: https://chill6.space</p>
         </div>
@@ -281,6 +310,9 @@ export function OrderDebugComponent() {
           </Button>
           <Button onClick={testAuthDebug} disabled={isLoading}>
             Debug Auth Headers
+          </Button>
+          <Button onClick={testDirectAuthService} disabled={isLoading}>
+            Test Auth Service Direct
           </Button>
           <Button onClick={testGetOrders} disabled={isLoading}>
             Test Get Orders

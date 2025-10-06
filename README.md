@@ -29,6 +29,15 @@ bun dev
 
 Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
 
+## Environment Configuration
+
+This project supports multiple environments (development, staging, production) with different configurations. See [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md) for detailed setup instructions.
+
+Quick environment setup:
+- Development: `bun run dev:env`
+- Build for staging: `bun run build:staging`
+- Build for production: `bun run build:production`
+
 
 
 

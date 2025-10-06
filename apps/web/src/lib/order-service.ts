@@ -7,8 +7,7 @@ import type {
   ValidateTokenResponse,
 } from "./order-types";
 
-const ORDER_BASE_URL =
-  "https://auth-multi-tenants-order-service.rifqempul.workers.dev";
+const ORDER_BASE_URL = import.meta.env.VITE_ORDER_SERVICE_URL;
 
 export class OrderService {
   private static async getAuthToken(): Promise<string | null> {
