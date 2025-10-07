@@ -1,26 +1,13 @@
-# Multi-environment deployment workflow
-name: Deploy to Environments
+# Simple workflow for deploying static content to GitHub Pages
+name: Deploy static content to Pages
 
 on:
-  # Production deployment on main branch, staging on develop, dev on dev branch
+  # Runs on pushes targeting the default branch
   push:
-    branches:
-      - "main" # production
-      - "develop" # staging
-      - "dev" # development
+    branches: ["main"]
 
-  # Manual deployment with environment selection
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-    inputs:
-      environment:
-        description: "Environment to deploy to"
-        required: true
-        default: "production"
-        type: choice
-        options:
-          - development
-          - staging
-          - production
 
 # Sets the GITHUB_TOKEN permissions to allow deployment to GitHub Pages
 permissions:
@@ -28,83 +15,42 @@ permissions:
   pages: write
   id-token: write
 
-# Allow one concurrent deployment per environment
+# Allow one concurrent deployment
 concurrency:
-  group: "pages-${{ github.ref_name }}"
+  group: "pages"
   cancel-in-progress: true
 
 jobs:
-  # Determine environment based on branch or manual input
-  determine-environment:
-    runs-on: ubuntu-latest
-    outputs:
-      environment: ${{ steps.set-env.outputs.environment }}
-      env-file: ${{ steps.set-env.outputs.env-file }}
-    steps:
-      - name: Determine environment
-        id: set-env
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
-            echo "env-file=.env.${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.ref_name }}" = "main" ]; then
-            echo "environment=production" >> $GITHUB_OUTPUT
-            echo "env-file=.env.production" >> $GITHUB_OUTPUT
-          elif [ "${{ github.ref_name }}" = "develop" ]; then
-            echo "environment=staging" >> $GITHUB_OUTPUT
-            echo "env-file=.env.staging" >> $GITHUB_OUTPUT
-          elif [ "${{ github.ref_name }}" = "dev" ]; then
-            echo "environment=development" >> $GITHUB_OUTPUT
-            echo "env-file=.env.dev" >> $GITHUB_OUTPUT
-          else
-            echo "environment=development" >> $GITHUB_OUTPUT
-            echo "env-file=.env.dev" >> $GITHUB_OUTPUT
-          fi
-
-  # Deploy job
+  # Single deploy job since we're just deploying
   deploy:
-    needs: determine-environment
     environment:
-      name: ${{ needs.determine-environment.outputs.environment }}
+      name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    env:
+      VITE_AUTH_SERVER_URL: ${{ secrets.VITE_AUTH_SERVER_URL || vars.VITE_AUTH_SERVER_URL }}
+      VITE_SERVER_URL: ${{ secrets.VITE_SERVER_URL || vars.VITE_SERVER_URL }}
+      VITE_ORDER_SERVICE_URL: ${{ secrets.VITE_ORDER_SERVICE_URL || vars.VITE_ORDER_SERVICE_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-
       - name: Install dependencies
         run: bun install --frozen-lockfile
-
-      - name: Load environment file
-        run: |
-          if [ -f "apps/web/${{ needs.determine-environment.outputs.env-file }}" ]; then
-            cp "apps/web/${{ needs.determine-environment.outputs.env-file }}" apps/web/.env
-          else
-            echo "Environment file not found, using default .env"
-          fi
-
       - name: Build
         run: bun run build
-        working-directory: ./apps/web
         env:
-          # Override with secrets if available
-          VITE_AUTH_SERVER_URL: ${{ secrets.VITE_AUTH_SERVER_URL || vars.VITE_AUTH_SERVER_URL }}
-          VITE_SERVER_URL: ${{ secrets.VITE_SERVER_URL || vars.VITE_SERVER_URL }}
-          VITE_ORDER_SERVICE_URL: ${{ secrets.VITE_ORDER_SERVICE_URL || vars.VITE_ORDER_SERVICE_URL }}
-
+          VITE_AUTH_SERVER_URL: ${{ secrets.VITE_AUTH_SERVER_URL }}
       - name: Setup Pages
         uses: actions/configure-pages@v5
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
+          # Upload dist folder from web app
           path: "./apps/web/dist"
-
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
